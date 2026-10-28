@@ -1,0 +1,6 @@
+{
+  "name": "铁板神数",
+  "description": "传统邵雍铁板神数排盘推演与百岁流年原断语与校正断语双栏对照",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
