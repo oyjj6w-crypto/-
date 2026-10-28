@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -441,37 +442,71 @@ private fun DateAdjustRow(
     modifier: Modifier = Modifier,
     testTag: String = ""
 ) {
-    Row(
+    Column(
         modifier = modifier
-            .background(XuanPaperDark, RoundedCornerShape(6.dp))
-            .border(1.dp, XuanPaperBorder, RoundedCornerShape(6.dp))
-            .padding(horizontal = 6.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .background(XuanPaperDark, RoundedCornerShape(8.dp))
+            .border(1.dp, XuanPaperBorder, RoundedCornerShape(8.dp))
+            .padding(horizontal = 8.dp, vertical = 6.dp)
     ) {
-        Column(modifier = Modifier.padding(start = 6.dp)) {
-            Text(text = label, fontSize = 10.sp, color = InkLight)
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            color = InkLight,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 减号按钮
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(Color.White, RoundedCornerShape(6.dp))
+                    .border(1.dp, XuanPaperBorder, RoundedCornerShape(6.dp))
+                    .clickable(onClick = onDecrease)
+                    .testTag("${testTag}_minus"),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Remove,
+                    contentDescription = "减少$label",
+                    tint = InkGrey,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+
+            // 当前选定值展示 (居中自适应占满中间空间)
             Text(
                 text = value,
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = InkBlack,
-                fontFamily = FontFamily.Serif
+                fontFamily = FontFamily.Serif,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 4.dp)
             )
-        }
 
-        Row {
-            IconButton(
-                onClick = onDecrease,
-                modifier = Modifier.padding(2.dp).testTag("${testTag}_minus")
+            // 加号按钮
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(Color.White, RoundedCornerShape(6.dp))
+                    .border(1.dp, XuanPaperBorder, RoundedCornerShape(6.dp))
+                    .clickable(onClick = onIncrease)
+                    .testTag("${testTag}_plus"),
+                contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Remove, contentDescription = "减少", tint = InkGrey)
-            }
-            IconButton(
-                onClick = onIncrease,
-                modifier = Modifier.padding(2.dp).testTag("${testTag}_plus")
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "增加", tint = InkGrey)
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "增加$label",
+                    tint = InkGrey,
+                    modifier = Modifier.size(18.dp)
+                )
             }
         }
     }
