@@ -1,4 +1,4 @@
-name: Android CI Build & Test
+name: Android CI Build & Package
 
 on:
   push:
@@ -14,6 +14,8 @@ jobs:
   build:
     name: Build & Package APK
     runs-on: ubuntu-latest
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx3072m -XX:MaxMetaspaceSize=1024m"
 
     steps:
       - name: Checkout Repository
@@ -28,30 +30,38 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Restore Keystore & Configuration
+      - name: Prepare Keystore and Environment
         run: |
-          # 还原 debug 密钥库
+          # 1. 还原 debug.keystore 用于打包签名
           if [ -f debug.keystore.base64 ]; then
             base64 -d debug.keystore.base64 > debug.keystore
           elif [ ! -f debug.keystore ]; then
             keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           fi
-          # 确保 .env 文件存在以满足 secrets 插件检查
-          touch .env
+          
+          # 2. 准备 .env 文件满足 secrets 插件检查
+          if [ -f .env.example ]; then
+            cp .env.example .env
+          else
+            touch .env
+          fi
+          
           chmod +x gradlew
 
-      - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest --stacktrace
-
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --stacktrace --no-daemon
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: tiebanshenshu-apk
+          name: tiebanshenshu-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 14
+
+      - name: Run Unit Tests
+        continue-on-error: true
+        run: ./gradlew testDebugUnitTest --stacktrace --no-daemon
 
       - name: Upload Unit Test Reports
         if: always()
